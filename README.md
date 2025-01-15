@@ -28,5 +28,5 @@
 
 - chmod -R 755 /Users/utilisateur/Sites/monprojet
 
-- echo "<h1>Bienvenue sur Projet 1</h1>" > /Users/utilisateur/Sites/monprojet/index.html
+- echo "<h1>Bienvenue sur Projet </h1>" > /Users/utilisateur/Sites/monprojet/index.html
 

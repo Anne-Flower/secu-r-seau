@@ -1,0 +1,79 @@
+# Dans le dockerfile le context est à la racine du projet 
+# Pour la prochaine fois set context: ./chemin/vers/dossier dockerfile: ./dockerfile 
+# dans dockerfile actuellement ./ = dossier du docker compose // avec context ./ =  ./chemin/vers/dossier
+services:
+
+  frontend:
+    container_name: frontend
+    build:
+      context: ./frontend
+      dockerfile: ./Dockerfile
+      target: ${NODE_ENV}
+    restart: always
+    ports:
+      - 5173:5173
+    environment:
+      NODE_ENV: ${NODE_ENV}
+    env_file:
+      - .env
+    volumes:
+      - ./frontend:/app
+    networks:
+      - nginx_network
+
+  backend:
+    container_name: backend
+    build:
+      context: ./backend
+      dockerfile: ./Dockerfile
+      target: ${NODE_ENV}
+    restart: always
+    ports:
+      - 9229:9229
+    environment:
+      NODE_ENV: ${NODE_ENV}
+    env_file:
+      - .env
+    volumes:
+      - ./backend:/app
+    networks:
+      - nginx_network
+      - mariadb_network
+    depends_on:
+      mariadb:
+        condition: service_healthy
+
+  mariadb:
+    container_name: mariadb
+    image: mariadb:11.5.2
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSORD}
+      MYSQL_DATABASE: ${DB_DATABASE}
+    volumes:
+      - mariadb_data:/var/lib/mysql
+      - ./sql:/docker-entrypoint-initdb.d
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "healthcheck.sh",
+          "--su-mysql",
+          "--connect",
+          "--innodb_initialized",
+        ]
+      start_period: 5s
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - mariadb_network
+
+
+networks:
+  nginx_network:
+    driver: bridge
+  mariadb_network:
+    driver: bridge
+
+volumes:
+  mariadb_data:

@@ -1,22 +1,21 @@
 version: '3.9'
-
 services:
-  app:
-    build:
-      context: .
+  web:
+    container_name: leMien
+    build: .
     ports:
-      - "8080:80"
+      - "3000:3000"
     volumes:
-      - .:/var/www/html
+      - "./myAPP:/app"
     depends_on:
       - db
-
   db:
-    image: mysql:8.0
+    image: postgres:15
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: myapp
-      MYSQL_USER: myuser
-      MYSQL_PASSWORD: mypassword
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: app_development
     ports:
-      - "3306:3306"
+      - "5432:5432"
+volumes:
+  db_data:
